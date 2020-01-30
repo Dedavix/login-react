@@ -40,7 +40,7 @@ class SignIn extends React.Component {
             }
         };
 
-        xmlhttp.open("GET","localhost:8080/api/user/signin?email=" + this.state.username + "&password=" +this.state.password , true);
+        xmlhttp.open("POST","http://localhost:8080/api/user/signin?email=" + this.state.username + "&password=" +this.state.password , true);
         xmlhttp.send();
       }
     }
