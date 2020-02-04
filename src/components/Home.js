@@ -2,20 +2,28 @@ import React from "react";
 import "../css/Home.css";
 import SignIn from "./SignIn.js";
 import SignUp from "./SignUp.js";
-import PrivateArea from "./PrivateArea.js";
+import PrivateAreaUser from "./PrivateAreaUser.js";
+import PrivateAreaAdmin from "./PrivateAreaAdmin.js";
+import Logout from "./Logout.js";
 
 class Home extends React.Component {
   constructor(props) {
     super(props);
-
-    this.state = { loginToken: "", menu: "" };
-
-    this.changeTokenState = this.changeTokenState.bind(this);
+    this.state = { loginToken: "", menu: "", user: null };
     this.changeMenuState = this.changeMenuState.bind(this);
+    this.changeUserState = this.changeUserState.bind(this);
   }
 
-  changeTokenState(token) {
-    this.setState({ loginToken: token });
+  componentDidMount() {
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    this.setState({ loginToken: token, user: user });
+  }
+
+  changeUserState(token, user) {
+    this.setState({ loginToken: token, user: user });
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", user);
     console.log(this.state.loginToken);
   }
 
@@ -27,7 +35,7 @@ class Home extends React.Component {
     var toRender = <span></span>;
     switch (this.state.menu) {
       case "SIGNIN":
-        toRender = <SignIn loginCallback={this.changeTokenState}></SignIn>;
+        toRender = <SignIn loginCallback={this.changeUserState}></SignIn>;
         break;
       case "SIGNUP":
         toRender = <SignUp></SignUp>;
@@ -37,26 +45,33 @@ class Home extends React.Component {
           toRender = <p>Per accedere effettuare il login!</p>;
           break;
         }
-        toRender = <PrivateArea token={this.state.loginToken}></PrivateArea>;
+        if (this.state.user.isAdmin == true) {
+          toRender = <PrivateAreaAdmin></PrivateAreaAdmin>;
+        } else {
+          toRender = <PrivateAreaUser></PrivateAreaUser>;
+        }
         break;
+      case "LOGOUT":
+        toRender = <Logout loginCallback={this.changeUserState}></Logout>;
     }
 
     return (
       <div className="container">
         <p>
-          <a href="#" onClick={e => this.changeMenuState("SIGNIN")}>
-            Accedi
-          </a>
+          <button onClick={() => this.changeMenuState("SIGNIN")}>Accedi</button>
         </p>
         <p>
-          <a href="#" onClick={e => this.changeMenuState("SIGNUP")}>
+          <button onClick={() => this.changeMenuState("SIGNUP")}>
             Registrati
-          </a>
+          </button>
         </p>
         <p>
-          <a href="#" onClick={e => this.changeMenuState("PRIVATE_AREA")}>
+          <button onClick={() => this.changeMenuState("PRIVATE_AREA")}>
             Area Personale
-          </a>
+          </button>
+        </p>
+        <p>
+          <button onClick={() => this.changeMenuState("LOGOUT")}>Logout</button>
         </p>
         {toRender}
       </div>

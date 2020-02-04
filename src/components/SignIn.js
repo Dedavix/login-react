@@ -1,4 +1,5 @@
 import React from "react";
+import User from "../data/user";
 
 class SignIn extends React.Component {
   constructor(props) {
@@ -19,8 +20,8 @@ class SignIn extends React.Component {
     this.setState({ password: inputPassword });
   }
 
-  assignToken(token) {
-    this.props.loginCallback(token);
+  assignTokenAndUser(token, user) {
+    this.props.loginCallback(token, user);
   }
 
   changeValidateResult(statusMsg) {
@@ -39,11 +40,21 @@ class SignIn extends React.Component {
     } else {
       var xmlhttp = new XMLHttpRequest();
       xmlhttp.onreadystatechange = function() {
+        let outPutMsg = "";
         if (this.readyState === 4 && this.status === 200) {
-          console.log(this.getResponseHeader("token"));
-          that.assignToken(this.getResponseHeader("token"));
+          let response = JSON.parse(this.responseText);
+          let user = new User(
+            response.nome,
+            response.cognome,
+            response.email,
+            response.admin
+          );
+          that.assignTokenAndUser(this.getResponseHeader("token"), user);
+          outPutMsg = "Login effettuato correttamente";
+        } else {
+          outPutMsg = "Password e/o email sbagliata";
         }
-        that.changeValidateResult(xmlhttp.response);
+        that.changeValidateResult(outPutMsg);
       };
 
       xmlhttp.open(
